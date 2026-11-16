@@ -1,0 +1,5 @@
+raw/
+plain/
+rows.json
+agg.json
+__pycache__/

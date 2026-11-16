@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>フロント業務アンケート 集計結果</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#f6f4ef; --surface:#fcfcfb; --surface-2:#f0efec; --line:#e2e0da;
+  --ink:#0b0b0b; --ink-2:#52514e; --ink-3:#7a7974;
+  --s1:#2a78d6; --s1-soft:#cde2fb;
+  --q1:#0d366b; --q2:#256abf; --q3:#6da7ec; --q4:#cde2fb; --q0:#ecebe7;
+  --accent:#eb6834; --accent-soft:#fde5da;
+  --good:#0ca30c;
+  --radius:16px;
+}
+@media (prefers-color-scheme: dark){
+  :root:where(:not([data-theme="light"])){
+    color-scheme:dark;
+    --bg:#121211; --surface:#1a1a19; --surface-2:#262624; --line:#33332f;
+    --ink:#f0efec; --ink-2:#c3c2b7; --ink-3:#8f8e86;
+    --s1:#3987e5; --s1-soft:#1c3556;
+    --q1:#9ec5f4; --q2:#5598e7; --q3:#256abf; --q4:#184f95; --q0:#2c2c29;
+    --accent:#d95926; --accent-soft:#3a2219;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#121211; --surface:#1a1a19; --surface-2:#262624; --line:#33332f;
+  --ink:#f0efec; --ink-2:#c3c2b7; --ink-3:#8f8e86;
+  --s1:#3987e5; --s1-soft:#1c3556;
+  --q1:#9ec5f4; --q2:#5598e7; --q3:#256abf; --q4:#184f95; --q0:#2c2c29;
+  --accent:#d95926; --accent-soft:#3a2219;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans JP",system-ui,sans-serif;line-height:1.7;font-size:15px}
+.wrap{max-width:1080px;margin:0 auto;padding:20px 16px 64px}
+h1,h2,h3{font-family:"M PLUS Rounded 1c","Noto Sans JP",sans-serif;line-height:1.35;margin:0}
+h1{font-size:clamp(24px,5vw,36px);font-weight:800}
+h2{font-size:clamp(20px,3.6vw,26px);font-weight:800}
+h3{font-size:16px;font-weight:700}
+p{margin:0}
+.muted{color:var(--ink-2)}
+.small{font-size:13px}
+.hero{display:grid;grid-template-columns:1.3fr 1fr;gap:20px;align-items:center;background:var(--surface);border-radius:24px;padding:28px;border:1px solid var(--line)}
+.hero .eyebrow{display:inline-block;font-size:13px;font-weight:700;color:var(--accent);background:var(--accent-soft);padding:2px 10px;border-radius:999px;margin-bottom:10px}
+.hero p.lead{margin-top:10px;color:var(--ink-2)}
+.hero svg{width:100%;height:auto;max-height:240px}
+@media (max-width:720px){.hero{grid-template-columns:1fr;padding:20px}.hero .illu{order:-1}}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:16px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+.kpi .k-label{font-size:13px;color:var(--ink-2)}
+.kpi .k-val{font-family:"M PLUS Rounded 1c",sans-serif;font-size:28px;font-weight:800;line-height:1.2;margin-top:2px}
+.kpi .k-val small{font-size:14px;font-weight:700;margin-left:2px}
+.kpi .k-sub{font-size:12px;color:var(--ink-3)}
+nav.toc{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0 4px}
+nav.toc a{font-size:13px;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--line);padding:4px 12px;border-radius:999px}
+nav.toc a:hover{border-color:var(--s1)}
+section.sec{margin-top:40px}
+.sec-head{display:flex;gap:12px;align-items:center;margin-bottom:6px}
+.sec-head .ico{width:44px;height:44px;flex:none;border-radius:12px;background:var(--s1-soft);display:grid;place-items:center}
+.sec-head .ico svg{width:26px;height:26px;stroke:var(--s1);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sec-intro{color:var(--ink-2);margin:4px 0 14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;min-width:0}
+.card.wide{grid-column:1/-1}
+.card h3{margin-bottom:2px}
+.card .q-n{font-size:12px;color:var(--ink-3);margin-bottom:10px}
+.takeaway{margin-top:10px;font-size:13.5px;background:var(--surface-2);border-radius:10px;padding:8px 12px}
+.takeaway b{color:var(--ink)}
+/* bars */
+.bars{display:grid;gap:7px}
+.bar-row{display:grid;grid-template-columns:minmax(90px,38%) 1fr auto;gap:10px;align-items:center;font-size:13.5px;cursor:default}
+.bar-row .lab{color:var(--ink);overflow-wrap:anywhere;line-height:1.35}
+.bar-track{height:14px;background:var(--surface-2);border-radius:4px;position:relative}
+.bar-fill{height:100%;background:var(--s1);border-radius:4px;min-width:2px}
+.bar-row.zero .bar-fill{background:transparent}
+.bar-row .val{font-variant-numeric:tabular-nums;color:var(--ink-2);font-size:13px;min-width:34px;text-align:right}
+.bar-row:hover .bar-fill{filter:brightness(1.12)}
+/* stacked */
+.stack-row{margin-bottom:12px}
+.stack-row .s-lab{font-size:13.5px;margin-bottom:4px}
+.stack{display:flex;height:22px;gap:2px;border-radius:5px;overflow:hidden}
+.stack > div{height:100%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;min-width:0}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--ink-2);margin-bottom:10px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+/* dot strip */
+.dots svg{width:100%;display:block;overflow:visible}
+.dots .sum{font-size:13px;color:var(--ink-2);margin-top:4px}
+/* heat */
+table.heat{border-collapse:separate;border-spacing:3px;width:100%;font-size:12.5px}
+table.heat th{font-weight:500;color:var(--ink-2);text-align:center;padding:2px}
+table.heat th.rh{text-align:left;white-space:nowrap}
+table.heat td{height:34px;border-radius:6px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
+/* floor map */
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.tabs button{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:5px 12px;border-radius:999px;cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--s1);border-color:var(--s1);color:#fff}
+.stores{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px}
+.store h4{margin:0 0 6px;font-size:14px;font-family:"M PLUS Rounded 1c",sans-serif}
+.floor{display:grid;grid-template-columns:44px 1fr;gap:8px;align-items:start;margin-bottom:8px}
+.floor .fl{font-size:12px;color:var(--ink-2);padding-top:8px;font-weight:700}
+.rooms{display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:4px}
+.room{border-radius:7px;height:40px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11.5px;font-variant-numeric:tabular-nums;border:1px solid var(--line);cursor:default;line-height:1.1}
+.room b{font-size:12px}
+.room span{font-size:10.5px;opacity:.9}
+.scale{display:flex;align-items:center;gap:6px 16px;font-size:12px;color:var(--ink-2);margin-top:6px;flex-wrap:wrap}
+.scale-grad{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.scale .sw{width:22px;height:12px;border-radius:3px;border:1px solid var(--line)}
+/* timeline */
+.timeline svg{width:100%;height:auto;display:block}
+/* lists */
+ul.notes{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+ul.notes li{background:var(--surface-2);border-radius:10px;padding:8px 12px;font-size:14px;display:flex;gap:10px;align-items:flex-start}
+ul.notes li .cnt{flex:none;font-size:12px;font-weight:700;color:var(--s1);background:var(--s1-soft);border-radius:999px;padding:1px 8px;margin-top:2px}
+ul.notes li.stacked{flex-direction:column;gap:4px}
+ul.notes li .tag{flex:none;font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:1px 8px;margin-top:2px}
+.script{border-left:4px solid var(--accent);background:var(--accent-soft);padding:10px 14px;border-radius:0 10px 10px 0;margin-top:10px;font-size:14.5px}
+.script .s-h{font-size:12px;font-weight:700;color:var(--accent);display:block;margin-bottom:2px}
+.checklist{display:grid;gap:6px}
+.chk{display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:center;font-size:13.5px}
+.chk .box{width:18px;height:18px;border-radius:5px;border:2px solid var(--s1);display:grid;place-items:center}
+.chk .box svg{width:12px;height:12px;stroke:#fff;stroke-width:3;fill:none}
+.chk.on .box{background:var(--s1)}
+.chk .meter{display:flex;gap:2px}
+.chk .meter i{width:9px;height:12px;border-radius:2px;background:var(--surface-2)}
+.chk .meter i.f{background:var(--s1)}
+/* spread */
+.spread-row{display:grid;grid-template-columns:minmax(120px,34%) 1fr;gap:12px;align-items:center;padding:8px 0;border-bottom:1px dashed var(--line)}
+.spread-row:last-child{border-bottom:none}
+.spread-row .sl{font-size:13.5px;line-height:1.4}
+.spread-row .sr{font-size:13px;color:var(--ink-2)}
+.spread-row .big{font-family:"M PLUS Rounded 1c",sans-serif;font-weight:800;font-size:18px;color:var(--ink)}
+.privacy{margin-top:40px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px}
+.privacy ul{margin:8px 0 0;padding-left:1.2em;color:var(--ink-2);font-size:14px}
+#tip{position:fixed;pointer-events:none;z-index:50;background:var(--ink);color:var(--surface);font-size:12.5px;padding:6px 10px;border-radius:8px;max-width:240px;opacity:0;transition:opacity .1s;line-height:1.45}
+#tip.on{opacity:1}
+.tbl-toggle{font:inherit;font-size:12px;background:none;border:none;color:var(--s1);cursor:pointer;padding:0;margin-top:8px;text-decoration:underline}
+table.raw{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
+table.raw td,table.raw th{border-bottom:1px solid var(--line);padding:3px 6px;text-align:left}
+table.raw td.n{text-align:right;font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div>
+    <span class="eyebrow">スタッフアンケート集計</span>
+    <h1>フロント業務アンケート<br>集計結果</h1>
+    <p class="lead">部屋決め・混雑時の対応・退室コール・年齢確認など、フロントの「現場での判断」をスタッフに聞きました。マニュアルにない暗黙のルールや、人によって判断が分かれるポイントをまとめています。</p>
+    <p class="small muted" style="margin-top:8px">回答数 <b id="n-hero"></b>人 ／ 個人が特定されないよう、集計値と言い換えた要点のみ掲載しています。</p>
+  </div>
+  <div class="illu" aria-hidden="true">
+    <svg viewBox="0 0 320 220">
+      <rect x="0" y="0" width="320" height="220" rx="20" fill="var(--surface-2)"/>
+      <!-- room doors -->
+      <g>
+        <rect x="24" y="26" width="58" height="84" rx="6" fill="var(--s1-soft)" stroke="var(--s1)" stroke-width="2"/>
+        <rect x="96" y="26" width="58" height="84" rx="6" fill="var(--s1-soft)" stroke="var(--s1)" stroke-width="2"/>
+        <rect x="168" y="26" width="58" height="84" rx="6" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/>
+        <rect x="240" y="26" width="58" height="84" rx="6" fill="var(--s1-soft)" stroke="var(--s1)" stroke-width="2"/>
+        <rect x="36" y="38" width="34" height="22" rx="3" fill="var(--surface)"/>
+        <rect x="108" y="38" width="34" height="22" rx="3" fill="var(--surface)"/>
+        <rect x="180" y="38" width="34" height="22" rx="3" fill="var(--surface)"/>
+        <rect x="252" y="38" width="34" height="22" rx="3" fill="var(--surface)"/>
+        <circle cx="72" cy="74" r="3" fill="var(--s1)"/><circle cx="144" cy="74" r="3" fill="var(--s1)"/>
+        <circle cx="216" cy="74" r="3" fill="var(--accent)"/><circle cx="288" cy="74" r="3" fill="var(--s1)"/>
+        <text x="53" y="98" font-size="12" text-anchor="middle" fill="var(--ink-2)" font-weight="700">201</text>
+        <text x="125" y="98" font-size="12" text-anchor="middle" fill="var(--ink-2)" font-weight="700">202</text>
+        <text x="197" y="98" font-size="12" text-anchor="middle" fill="var(--accent)" font-weight="700">使用中</text>
+        <text x="269" y="98" font-size="12" text-anchor="middle" fill="var(--ink-2)" font-weight="700">204</text>
+      </g>
+      <!-- counter -->
+      <rect x="20" y="150" width="280" height="54" rx="10" fill="var(--s1)"/>
+      <rect x="20" y="146" width="280" height="10" rx="5" fill="var(--q2)"/>
+      <!-- staff -->
+      <circle cx="110" cy="120" r="16" fill="var(--ink-2)"/>
+      <path d="M84 150 q26 -30 52 0" fill="var(--ink-2)"/>
+      <!-- POS -->
+      <rect x="176" y="114" width="56" height="36" rx="5" fill="var(--surface)" stroke="var(--ink-3)" stroke-width="2"/>
+      <rect x="184" y="121" width="40" height="18" rx="2" fill="var(--s1-soft)"/>
+      <!-- mic -->
+      <g transform="translate(272 128) rotate(20)">
+        <rect x="-7" y="-14" width="14" height="22" rx="7" fill="var(--accent)"/>
+        <rect x="-2" y="8" width="4" height="30" rx="2" fill="var(--ink-3)"/>
+      </g>
+      <!-- bubble -->
+      <rect x="128" y="160" width="124" height="30" rx="15" fill="var(--surface)"/>
+      <text x="190" y="180" font-size="13" text-anchor="middle" fill="var(--ink)" font-weight="700">いらっしゃいませ！</text>
+    </svg>
+  </div>
+</header>
+
+<div class="kpis" id="kpis"></div>
+
+<nav class="toc" aria-label="目次">
+  <a href="#respondents">回答者</a><a href="#rooms">部屋決め</a><a href="#crowd">混雑時</a><a href="#transfer">送客</a><a href="#calls">退室コール</a><a href="#cleaning">清掃</a><a href="#age">年齢確認・ドリンク</a><a href="#mistakes">ミスと新人教育</a><a href="#spread">判断が分かれた項目</a>
+</nav>
+
+<section class="sec" id="respondents">
+  <div class="sec-head"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.2c3 .2 5.5 2.4 5.5 5.8"/></svg></div><h2>回答した人</h2></div>
+  <p class="sec-intro small">特定につながらないよう、店舗は「入る店舗」ごとの延べ人数、勤務歴は2区分にまとめています。ほかの設問との組み合わせ集計はしていません。</p>
+  <div class="grid">
+    <div class="card"><h3>入る店舗（延べ）</h3><div class="q-n" data-q="shop"></div><div id="c-shop"></div></div>
+    <div class="card"><h3>よく入る時間帯（複数回答）</h3><div class="q-n" data-q="slot"></div><div id="c-slot"></div></div>
+    <div class="card"><h3>勤務歴</h3><div class="q-n" data-q="tenure"></div><div id="c-tenure"></div></div>
+  </div>
+</section>
+
+<section class="sec" id="rooms">
+  <div class="sec-head"><div class="ico"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="1.5"/><circle cx="15.5" cy="12" r="1"/><path d="M2 21h20"/></svg></div><h2>1. 部屋決め（ルームコントロール）</h2></div>
+  <p class="sec-intro">どの部屋をどんなお客様に使うか。部屋ごとの答えを「フロア図」に色で表しました。</p>
+  <div class="grid">
+    <div class="card wide">
+      <h3>部屋マップ</h3>
+      <div class="q-n">色が濃いほど、その部屋を挙げた人が多い。タップ・ホバーで人数を表示。部屋は番号順に並べた図で、実際の配置とは異なります。</div>
+      <div class="tabs" id="map-tabs" role="group" aria-label="表示する項目"></div>
+      <div class="q-n" id="map-n"></div>
+      <div class="stores" id="map"></div>
+      <div class="scale" id="map-scale"></div>
+      <div class="takeaway" id="map-take"></div>
+    </div>
+    <div class="card wide">
+      <h3>部屋決めルールの意識度</h3>
+      <div class="q-n" data-q="rule_short"></div>
+      <div class="legend" id="rule-legend"></div>
+      <div id="c-rules"></div>
+      <div class="takeaway" id="t-rules"></div>
+    </div>
+    <div class="card"><h3>混雑時に取っておく大部屋の数</h3><div class="q-n" data-q="bigcount"></div><div id="c-bigcount"></div></div>
+    <div class="card"><h3>午前以外で、少人数を大部屋に入れてよいとき</h3><div class="q-n" data-q="small_in_big">（複数回答）</div><div id="c-small_in_big"></div></div>
+    <div class="card"><h3>当日客に機種・モニターの希望を聞くか</h3><div class="q-n" data-q="ask_model"></div><div id="c-ask_model"></div>
+      <h3 style="margin-top:14px;font-size:14px">「空室が多い」と判断する空室の割合</h3><div class="q-n" id="n-ask_model_pct"></div><div id="c-ask_model_pct"></div></div>
+    <div class="card"><h3>人気の部屋の理由</h3><div class="q-n" data-q="pop_reason">（複数回答）</div><div id="c-pop_reason"></div></div>
+    <div class="card"><h3>マニュアル以外に気をつけていること</h3><div class="q-n">自由記述を要約</div><ul class="notes" id="l-room_tips"></ul></div>
+    <div class="card"><h3>客層によって配慮している部屋選び</h3><div class="q-n" id="n-avoid"></div><ul class="notes" id="l-avoid"></ul></div>
+  </div>
+</section>
+
+<section class="sec" id="crowd">
+  <div class="sec-head"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><h2>2. 混雑時の対応</h2></div>
+  <p class="sec-intro">いつ混むか、混んだときに利用時間や人数にどう制限をかけるか。</p>
+  <div class="grid">
+    <div class="card"><h3>混むことが多い曜日</h3><div class="q-n" data-q="busy_day">（複数回答）</div><div id="c-busy_day"></div></div>
+    <div class="card"><h3>特に混む時間帯</h3><div class="q-n" data-q="busy_wd">（複数回答）</div><div id="c-busy_slots"></div></div>
+    <div class="card"><h3>1年の中で混む時期</h3><div class="q-n" data-q="busy_season">（複数回答）</div><div id="c-busy_season"></div></div>
+    <div class="card"><h3>利用時間に上限をかけるとき</h3><div class="q-n" id="n-cap_time"></div><div id="c-cap_time"></div></div>
+    <div class="card"><h3>利用人数に下限をかけるとき</h3><div class="q-n" id="n-cap_people"></div><div id="c-cap_people"></div></div>
+    <div class="card"><h3>下限をかけたときに伝えていること</h3><div class="q-n" data-q="decline_content">（複数回答）</div><div id="c-decline_content"></div><div id="s-decline"></div></div>
+    <div class="card"><h3>「延長不可」と判断する目安</h3><div class="q-n" data-q="noext_groups">待っている組数</div><div id="c-noext_groups"></div>
+      <h3 style="margin-top:14px;font-size:14px">空室の割合（これ以下なら延長不可）</h3><div class="q-n" id="n-noext_pct"></div><div id="c-noext_pct"></div>
+      <h3 style="margin-top:14px;font-size:14px">ほかの判断材料</h3><div class="q-n" data-q="noext_other">（複数回答）</div><div id="c-noext_other"></div></div>
+    <div class="card"><h3>待ち時間は見込みより何分多めに伝える？</h3><div class="q-n" id="n-wait_pad"></div><div id="c-wait_pad"></div></div>
+  </div>
+</section>
+
+<section class="sec" id="transfer">
+  <div class="sec-head"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg></div><h2>3. もう一方の店舗への送客</h2></div>
+  <div class="grid">
+    <div class="card"><h3>何分以上待つときに紹介する？</h3><div class="q-n" id="n-transfer_wait"></div><div id="c-transfer_wait"></div></div>
+    <div class="card"><h3>待ち時間以外の紹介理由</h3><div class="q-n" data-q="transfer_reason">（複数回答）</div><div id="c-transfer_reason"></div></div>
+    <div class="card"><h3>送客紙に最低限書いてほしいこと</h3><div class="q-n" data-q="slip_fields">（複数回答）■の数が挙げた人数。半数以上が挙げた項目にチェック</div><div id="c-slip_fields" class="checklist"></div></div>
+    <div class="card"><h3>送客紙を渡すときに伝えていること</h3><div class="q-n" data-q="slip_tell">（複数回答）</div><div id="c-slip_tell"></div><div id="s-transfer"></div></div>
+  </div>
+</section>
+
+<section class="sec" id="calls">
+  <div class="sec-head"><div class="ico"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></div><h2>4. 退室コール</h2></div>
+  <div class="grid">
+    <div class="card wide timeline"><h3>退室コールの流れ（回答の中央値）</h3><div class="q-n">終了時刻を0として、各タイミングの中央値と、回答の幅を表示</div><div id="c-timeline"></div></div>
+    <div class="card"><h3>ピンク（10分前）より早くかけるとき</h3><div class="q-n" data-q="call_early_when">（複数回答）</div><div id="c-call_early_when"></div></div>
+    <div class="card"><h3>30分・テレワーク利用の客への確認</h3><div class="q-n" data-q="ask_nocall">退室コールが「不要」か聞いているか</div><div id="c-ask_nocall"></div>
+      <h3 style="margin-top:14px;font-size:14px">「不要」と答える客は？</h3><div class="q-n" data-q="nocall_often"></div><div id="c-nocall_often"></div></div>
+  </div>
+</section>
+
+<section class="sec" id="cleaning">
+  <div class="sec-head"><div class="ico"><svg viewBox="0 0 24 24"><path d="M14 3l-4 9M7 12h8l2 9H5z"/><path d="M9 16v3M13 16v3"/></svg></div><h2>5. 清掃にかかる時間（1部屋）</h2></div>
+  <div class="grid">
+    <div class="card"><h3>スタンバイ（通常の清掃）</h3><div class="q-n" id="n-clean_standby"></div><div id="c-clean_standby"></div></div>
+    <div class="card"><h3>ウェイティング（客が待っているとき）</h3><div class="q-n" id="n-clean_waiting"></div><div id="c-clean_waiting"></div></div>
+  </div>
+</section>
+
+<section class="sec" id="age">
+  <div class="sec-head"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="2"/><path d="M5.5 16c.5-1.6 1.6-2.4 3-2.4s2.5.8 3 2.4M14 10h4M14 13h3"/></svg></div><h2>6. 年齢確認・ドリンク</h2></div>
+  <div class="grid">
+    <div class="card"><h3>身分証の提示をお願いするとき</h3><div class="q-n" data-q="id_when">（複数回答）</div><div id="c-id_when"></div></div>
+    <div class="card"><h3>学生ではない未成年の年齢確認方法</h3><div class="q-n" data-q="minor_check">（複数回答）</div><div id="c-minor_check"></div></div>
+    <div class="card"><h3>A放の客に「お車でお越しですか」と聞くか</h3><div class="q-n" data-q="car_ask"></div><div id="c-car_ask"></div>
+      <div class="takeaway" id="t-car"></div></div>
+    <div class="card"><h3>単品ドリンク（1d）の注文をフロントで聞くか</h3><div class="q-n" data-q="oned_ask"></div><div id="c-oned_ask"></div></div>
+  </div>
+</section>
+
+<section class="sec" id="mistakes">
+  <div class="sec-head"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4M12 17.2v.1"/></svg></div><h2>7. よくあるミスと新人教育</h2></div>
+  <div class="grid">
+    <div class="card"><h3>自分や周りでよく起きるミス</h3><div class="q-n" data-q="mistakes">（複数回答）</div><div id="c-mistakes"></div></div>
+    <div class="card"><h3>新人がつまずきやすい業務</h3><div class="q-n" data-q="stumble">（複数回答）</div><div id="c-stumble"></div></div>
+    <div class="card"><h3>ミスを防ぐための工夫</h3><div class="q-n">自由記述を要約</div><ul class="notes" id="l-mistake_tips"></ul></div>
+    <div class="card"><h3>マニュアルへの要望</h3><div class="q-n">自由記述を要約</div><ul class="notes" id="l-manual_requests"></ul>
+      <h3 style="margin-top:14px">フロント担当へのお願い・ひとこと</h3><div class="q-n">自由記述を要約</div><ul class="notes" id="l-requests"></ul></div>
+    <div class="card"><h3>選択肢以外に挙がったこと</h3><div class="q-n">「その他」の記述を要約</div><ul class="notes" id="l-other_notes"></ul></div>
+  </div>
+</section>
+
+<section class="sec" id="spread">
+  <div class="sec-head"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 12h16M4 12l3-3M4 12l3 3M20 12l-3-3M20 12l-3 3"/></svg></div><h2>人によって判断が分かれた項目</h2></div>
+  <p class="sec-intro">同じ質問でも答えの幅が大きかったもの。マニュアルやトレーニングゲームで「基準」を決めておくと、判断がそろいやすくなります。</p>
+  <div class="card" id="c-spread"></div>
+</section>
+
+<div class="privacy">
+  <h3>この集計での匿名性への配慮</h3>
+  <ul>
+    <li>名前・回答日時・回答の順番は載せていません。同じ人数の選択肢は、回答順とは関係のない文字順で並べています。</li>
+    <li>自由記述や「実際の言い方」は原文のままにせず、要点だけを言い換えています。同じ趣旨の回答はまとめ、口調や絵文字は省きました。</li>
+    <li>店舗・勤務歴は大きな区分にまとめ、ほかの設問とのかけ合わせ集計はしていません。</li>
+    <li>数値の設問は、一人ひとりの点を値の順に並べたもので、誰の回答かは分かりません。</li>
+  </ul>
+</div>
+
+</div>
+<div id="tip" role="tooltip"></div>
+
+<script>
+const A = __AGG__;
+const C = __CMT__;
+const N = A.n;
+const $ = s => document.querySelector(s);
+const el = (tag, attrs={}, ...kids) => { const e=document.createElement(tag); for(const [k,v] of Object.entries(attrs)){ if(k==='class') e.className=v; else if(k==='style') e.style.cssText=v; else if(k==='text') e.textContent=v; else e.setAttribute(k,v);} kids.forEach(k=>e.append(k)); return e; };
+const pct = (a,b) => b? Math.round(a/b*100):0;
+const median = v => { const s=[...v].sort((a,b)=>a-b); const m=s.length>>1; return s.length%2? s[m] : (s[m-1]+s[m])/2; };
+const fmtMin = m => { if(m<60) return (Number.isInteger(m)?m:m.toFixed(1))+'分'; const h=Math.floor(m/60), r=Math.round(m-h*60); return h+'時間'+(r? r+'分':''); };
+
+// tooltip
+const tip=$('#tip');
+function bindTip(node, text){
+  node.addEventListener('pointerenter',e=>{tip.textContent=text;tip.classList.add('on');moveTip(e)});
+  node.addEventListener('pointermove',moveTip);
+  node.addEventListener('pointerleave',()=>tip.classList.remove('on'));
+  node.addEventListener('click',e=>{tip.textContent=text;tip.classList.add('on');moveTip(e);clearTimeout(node._t);node._t=setTimeout(()=>tip.classList.remove('on'),1800)});
+}
+function moveTip(e){ const w=tip.offsetWidth,h=tip.offsetHeight; let x=e.clientX+12,y=e.clientY-h-10; if(x+w>innerWidth-8)x=e.clientX-w-12; if(y<8)y=e.clientY+16; tip.style.left=Math.max(8,x)+'px'; tip.style.top=y+'px'; }
+
+// n labels
+document.querySelectorAll('[data-q]').forEach(d=>{ const q=A[d.dataset.q]; if(!q) return; const extra=d.textContent; d.textContent=`回答 ${q.answered}/${N}人`+(extra?'　'+extra:''); });
+$('#n-hero').textContent=N;
+
+function bars(id, key, opt={}){
+  const q=A[key], host=$('#'+id); const max=opt.max || Math.max(1,...q.items.map(i=>i[1]));
+  const box=el('div',{class:'bars'});
+  q.items.forEach(([lab,v])=>{
+    const row=el('div',{class:'bar-row'+(v?'':' zero')});
+    const fill=el('div',{class:'bar-fill',style:`width:${v/max*100}%`});
+    row.append(el('div',{class:'lab',text:(opt.rename&&opt.rename[lab])||lab}), el('div',{class:'bar-track'},fill), el('div',{class:'val',text:v+'人'}));
+    bindTip(row, `${lab}：${v}人（回答者の${pct(v,q.answered)}%）`);
+    box.append(row);
+  });
+  host.append(box); addTable(host, [['項目','人数'], ...q.items]);
+}
+function addTable(host, rows){
+  const btn=el('button',{class:'tbl-toggle',type:'button',text:'表で見る'}); const t=el('table',{class:'raw'}); t.hidden=true;
+  rows.forEach((r,i)=>{ const tr=el('tr'); r.forEach((c,j)=>tr.append(el(i?'td':'th',{class:j&&i?'n':'',text:String(c)}))); t.append(tr); });
+  btn.onclick=()=>{t.hidden=!t.hidden;btn.textContent=t.hidden?'表で見る':'表を閉じる'};
+  host.append(btn,t);
+}
+// ordinal stacked
+const ORD=['var(--q1)','var(--q2)','var(--q3)','var(--q4)'];
+const ORD_TXT=['var(--surface)','var(--surface)','var(--ink)','var(--ink)'];
+function stackRow(host,label,q,levels,colors=ORD){
+  const tot=q.items.reduce((s,i)=>s+i[1],0);
+  const row=el('div',{class:'stack-row'}); row.append(el('div',{class:'s-lab',text:label}));
+  const st=el('div',{class:'stack'});
+  levels.forEach((lv,i)=>{ const v=(q.items.find(x=>x[0]===lv)||[0,0])[1]; if(!v) return;
+    const seg=el('div',{style:`flex:${v};background:${colors[i]};color:${ORD_TXT[i]}`,text:v}); bindTip(seg,`${lv}：${v}人`); st.append(seg); });
+  row.append(st); host.append(row);
+}
+function legend(host,levels,colors=ORD){ levels.forEach((l,i)=>host.append(el('span',{},el('i',{style:`background:${colors[i]}`}),l))); }
+function singleStack(id,key){ const q=A[key]; const host=$('#'+id); const lv=q.items.map(i=>i[0]); const lg=el('div',{class:'legend'}); legend(lg,lv); host.append(lg); stackRow(host,'',q,lv); host.querySelector('.s-lab').remove(); addTable(host,[['回答','人数'],...q.items]); }
+
+// dot strip
+function dots(id,key,unit,opt={}){
+  const vals=A[key].values, host=$('#'+id); const nEl=$('#n-'+key); if(nEl) nEl.textContent=`回答 ${vals.length}/${N}人　●1つ＝1人`;
+  if(!vals.length){host.textContent='—';return;}
+  const W=Math.max(260,host.clientWidth||320), pad=18;
+  const lo=opt.min??0, hi=opt.max??Math.max(...vals);
+  const x=v=>pad+(v-lo)/(hi-lo||1)*(W-pad*2);
+  const pre={}; vals.forEach(v=>{ let k=v; for(const o of Object.keys(pre)){ if(Math.abs(x(+o)-x(v))<13){k=+o;break;} } pre[k]=(pre[k]||0)+1; });
+  const H=58+Math.max(...Object.values(pre))*15;
+  const ns='http://www.w3.org/2000/svg'; const svg=document.createElementNS(ns,'svg'); svg.setAttribute('viewBox',`0 0 ${W} ${H}`); svg.setAttribute('role','img');
+  const base=H-26;
+  const mk=(t,a)=>{const e=document.createElementNS(ns,t);for(const k in a)e.setAttribute(k,a[k]);svg.append(e);return e;};
+  mk('line',{x1:pad,x2:W-pad,y1:base,y2:base,stroke:'var(--line)','stroke-width':2});
+  (opt.ticks||[lo,hi]).forEach(t=>{ mk('line',{x1:x(t),x2:x(t),y1:base,y2:base+4,stroke:'var(--ink-3)'}); const tx=mk('text',{x:x(t),y:base+18,'text-anchor':'middle','font-size':11,fill:'var(--ink-2)'}); tx.textContent=(opt.fmt||(v=>v+unit))(t); });
+  const md=median(vals); mk('line',{x1:x(md),x2:x(md),y1:8,y2:base,stroke:'var(--accent)','stroke-width':2,'stroke-dasharray':'4 3'});
+  const ml=mk('text',{x:Math.min(W-pad,Math.max(pad,x(md))),y:8,'text-anchor':x(md)>W*0.7?'end':(x(md)<W*0.3?'start':'middle'),'font-size':11,'font-weight':700,fill:'var(--accent)','dominant-baseline':'hanging'}); ml.textContent='中央値 '+(opt.fmt||(v=>v+unit))(md);
+  const stackC={};
+  const colOf={}; vals.forEach(v=>{ let k=v; for(const o of Object.keys(stackC)){ if(Math.abs(x(+o)-x(v))<13){k=+o;break;} } stackC[k]=(stackC[k]||0)+1; const cy=base-8-(stackC[k]-1)*15; mk('circle',{cx:x(k),cy,r:6.5,fill:'var(--s1)',stroke:'var(--surface)','stroke-width':2}); (colOf[k]=colOf[k]||[]).push(v); });
+  Object.entries(stackC).forEach(([v,c])=>{ const hit=mk('rect',{x:x(+v)-10,y:base-8-(c-1)*15-10,width:20,height:c*15+6,fill:'transparent'}); const f=(opt.fmt||(v=>v+unit)); const grp={}; colOf[v].forEach(z=>grp[z]=(grp[z]||0)+1); bindTip(hit,Object.entries(grp).sort((a,b)=>a[0]-b[0]).map(([z,n])=>`${f(+z)}：${n}人`).join('、')); });
+  const wrap=el('div',{class:'dots'}); wrap.append(svg);
+  const mn=Math.min(...vals), mx=Math.max(...vals);
+  wrap.append(el('div',{class:'sum',text:`幅：${(opt.fmt||(v=>v+unit))(mn)}〜${(opt.fmt||(v=>v+unit))(mx)}`}));
+  host.append(wrap);
+}
+
+// heat table
+function heatCell(v,max){ const t=max? v/max:0; const td=el('td'); td.textContent=v||'';
+  if(!v){td.style.background='var(--q0)';}
+  else { const steps=['var(--q4)','var(--q3)','var(--q2)','var(--q1)']; const i=Math.min(3,Math.floor(t*3.999)); td.style.background=steps[i]; td.style.color=i>=2?'var(--surface)':'var(--ink)'; }
+  return td; }
+function heatTable(host, rows, cols, maxv, tipfn){
+  const t=el('table',{class:'heat'}); const hr=el('tr'); hr.append(el('th'));
+  cols.forEach(c=>hr.append(el('th',{text:c}))); t.append(hr);
+  rows.forEach(([rl,vals])=>{ const tr=el('tr'); tr.append(el('th',{class:'rh',text:rl})); vals.forEach((v,i)=>{const td=heatCell(v,maxv); bindTip(td,tipfn(rl,cols[i],v)); tr.append(td);}); t.append(tr); });
+  host.append(t);
+}
+
+// まとめの一文（comments.json の takeaways から）
+['rules','car'].forEach(k=>{ const e=$('#t-'+k); if(e) e.innerHTML=C.takeaways[k]||''; });
+// ===== KPIs
+(function(){
+  const k=$('#kpis');
+  const big=A.bigcount.items.find(i=>i[0]==='2室')[1];
+  const ce=A.call_early.values;
+  const items=[
+    ['回答数',N,'人','スタッフアンケート'],
+    ['混雑時に取っておく大部屋',2,'室',`${big}/${A.bigcount.answered}人が「2室」`],
+    ['早めの退室コール',`${Math.min(...ce)}〜${Math.max(...ce)}`,'分前',`中央値 ${median(ce)}分前`],
+    ['清掃（スタンバイ）',median(A.clean_standby.values),'分',`ウェイティングは中央値 ${median(A.clean_waiting.values)}分`],
+  ];
+  items.forEach(([l,v,u,s])=>k.append(el('div',{class:'kpi'},el('div',{class:'k-label',text:l}),el('div',{class:'k-val'},v,el('small',{text:u})),el('div',{class:'k-sub',text:s}))));
+})();
+
+// ===== respondents
+bars('c-shop','shop',{max:N}); bars('c-slot','slot',{max:N}); singleStack('c-tenure','tenure');
+
+// ===== room map
+const STORES={'本店':{'2F':[201,205],'3F':[306,314],'4F':[415,423]},'駅前店':{'1F':[101,112],'2F':[213,225]}};
+const LAYERS=[
+  ['room_big','大人数用に取っておく','どの部屋を大人数用に取っておくことが多いか'],
+  ['room_pop','人気・指名が多い','客から指名されやすい・人気の部屋'],
+  ['room_tele','テレワークで案内','テレワークでよく案内する部屋'],
+  ['room_avoid_couple','カップルには避ける','カップルにはできれば案内を避けている部屋'],
+];
+const TAKE=Object.fromEntries(LAYERS.map(([k])=>[k,C.takeaways['map_'+k]||'']));
+function drawMap(key){
+  const q=A[key]; const host=$('#map'); host.innerHTML='';
+  const max=Math.max(1,...Object.values(q.counts));
+  $('#map-n').textContent=`この項目に部屋を挙げた人：${q.answered}/${N}人`;
+  for(const [store,floors] of Object.entries(STORES)){
+    const s=el('div',{class:'store'}); s.append(el('h4',{text:store}));
+    Object.entries(floors).reverse().forEach(([fl,[a,b]])=>{
+      const f=el('div',{class:'floor'}); f.append(el('div',{class:'fl',text:fl})); const rs=el('div',{class:'rooms'});
+      for(let r=a;r<=b;r++){ const v=q.counts[`${store} ${r}`]||0; const steps=['var(--q4)','var(--q3)','var(--q2)','var(--q1)'];
+        const i=v? Math.min(3,Math.floor(v/max*3.999)):-1;
+        const d=el('div',{class:'room'}); d.append(el('b',{text:r})); d.append(el('span',{text:v? v+'人':''}));
+        if(i>=0){ d.style.background=steps[i]; d.style.borderColor='transparent'; d.style.color= i>=2? 'var(--surface)':'var(--ink)'; }
+        else { d.style.background='var(--surface)'; d.style.color='var(--ink-3)'; }
+        bindTip(d,`${store} ${r}：${v}人`); rs.append(d); }
+      f.append(rs); s.append(f);
+    });
+    host.append(s);
+  }
+  const sc=$('#map-scale'); sc.innerHTML=''; const grad=el('span',{class:'scale-grad'}); grad.append('少ない'); ['var(--q4)','var(--q3)','var(--q2)','var(--q1)'].forEach(c=>grad.append(el('span',{class:'sw',style:`background:${c}`}))); grad.append('多い'); sc.append(grad, el('span',{text:'枠のみ＝挙がらなかった部屋'}));
+  $('#map-take').innerHTML=TAKE[key];
+}
+(function(){ const tabs=$('#map-tabs'); LAYERS.forEach(([k,l],i)=>{ const b=el('button',{type:'button','aria-pressed':i?'false':'true',text:l}); b.onclick=()=>{tabs.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed','false'));b.setAttribute('aria-pressed','true');drawMap(k)}; tabs.append(b);}); drawMap('room_big'); })();
+
+// rules
+(function(){ const lv=['いつも','ときどき','あまり','知らなかった']; legend($('#rule-legend'),lv); const h=$('#c-rules');
+  stackRow(h,'飲み放題はキッチンの近く',A.rule_nomi,lv); stackRow(h,'短時間はキッチンの近く、長時間は遠く',A.rule_short,lv); stackRow(h,'夜フリータイムは遠く（本店4階・駅前2階）に入れない',A.rule_free,lv);
+  addTable(h,[['ルール',...lv],['飲み放題は近く',...A.rule_nomi.items.map(i=>i[1])],['短時間は近く・長時間は遠く',...A.rule_short.items.map(i=>i[1])],['夜フリーは遠くに入れない',...A.rule_free.items.map(i=>i[1])]]); })();
+singleStack('c-bigcount','bigcount'); bars('c-small_in_big','small_in_big',{max:N}); singleStack('c-ask_model','ask_model');
+dots('c-ask_model_pct','ask_model_pct','%',{min:0,max:100,ticks:[0,25,50,75,100]});
+bars('c-pop_reason','pop_reason');
+function notes(id,list,mode){ const u=$('#'+id); list.forEach(it=>{ const li=el('li',{class: mode==='label'?'stacked':''}); if(mode==='seg') li.append(el('span',{class:'tag',text:it.seg})); else if(mode==='label') li.append(el('span',{class:'tag',text:it.label})); else if(it.count) li.append(el('span',{class:'cnt',text:it.count+'件'})); li.append(el('span',{text:it.text})); u.append(li); }); }
+notes('l-room_tips',C.room_tips);
+(function(){ const s=A.avoid_segments; $('#n-avoid').textContent=`回答 ${A.avoid_people}/${N}人（カップルについて ${s['カップル']||0}人、そのほかの客層は少数）`; notes('l-avoid',C.avoid_reasons,'seg'); })();
+
+// ===== crowd
+bars('c-busy_day','busy_day',{max:N});
+(function(){ const h=$('#c-busy_slots'); const cols=A.busy_wd.items.map(i=>i[0]); const mx=Math.max(...A.busy_wd.items.map(i=>i[1]),...A.busy_we.items.map(i=>i[1]));
+  heatTable(h,[['平日',A.busy_wd.items.map(i=>i[1])],['土日・祝',A.busy_we.items.map(i=>i[1])]],cols,mx,(r,c,v)=>`${r} ${c}：${v}人`);
+  h.append(el('div',{class:'takeaway'})); h.lastChild.innerHTML=C.takeaways.busy||''; })();
+bars('c-busy_season','busy_season');
+function capCard(key,label){ const q=A[key]; const h=$('#c-'+key); $('#n-'+key).textContent=`条件を答えた人 ${q.used}/${N}人・「かけていない」${q.none}人`;
+  const days=q.days.filter(d=>d[1]>0||['金','土','日','祝日'].includes(d[0])); const mx=Math.max(1,...q.days.map(d=>d[1]),...q.slots.map(s=>s[1]));
+  heatTable(h,[['曜日',days.map(d=>d[1])]],days.map(d=>d[0]),mx,(r,c,v)=>`${c}：${v}人`);
+  heatTable(h,[['時間帯',q.slots.map(s=>s[1])]],q.slots.map(s=>s[0].replace('時','')),mx,(r,c,v)=>`${c}時：${v}人`);
+  const lim=q.limit.map(([l,c])=>`${l}（${c}人）`).join('、'); h.append(el('div',{class:'takeaway',text:`${label}：${lim}`})); }
+capCard('cap_time','上限'); capCard('cap_people','下限');
+bars('c-decline_content','decline_content');
+$('#s-decline').append(el('div',{class:'script'},el('span',{class:'s-h',text:'言い方の例（回答をもとに整えたもの）'}),C.scripts.decline), el('p',{class:'small muted',style:'margin-top:6px',text:C.scripts.decline_note}));
+singleStack('c-noext_groups','noext_groups');
+dots('c-noext_pct','noext_pct','%',{min:0,max:100,ticks:[0,25,50,75,100]});
+bars('c-noext_other','noext_other');
+dots('c-wait_pad','wait_pad','分',{min:0,max:Math.max(60,...A.wait_pad.values),ticks:[0,15,30,45,60],fmt:fmtMin});
+$('#c-wait_pad').append(el('div',{class:'takeaway',text:C.takeaways.wait_pad||''}));
+
+// ===== transfer
+dots('c-transfer_wait','transfer_wait','分',{min:0,max:Math.max(45,Math.ceil(Math.max(...A.transfer_wait.values)/30)*30),ticks:[0,30,60,90].filter(t=>t<=Math.max(45,Math.ceil(Math.max(...A.transfer_wait.values)/30)*30)),fmt:fmtMin});
+bars('c-transfer_reason','transfer_reason',{max:N});
+(function(){ const q=A.slip_fields, h=$('#c-slip_fields'); q.items.forEach(([l,v])=>{ const on=v>=N/2; const row=el('div',{class:'chk'+(on?' on':'')}); const box=el('div',{class:'box'}); if(on) box.innerHTML='<svg viewBox="0 0 12 12"><path d="M2 6.5l2.5 2.5L10 3"/></svg>'; const m=el('div',{class:'meter'}); for(let i=0;i<N;i++) m.append(el('i',{class:i<v?'f':''})); row.append(box,el('span',{text:l}),m); bindTip(row,`${l}：${v}人`); h.append(row); }); addTable(h,[['項目','人数'],...q.items]); })();
+bars('c-slip_tell','slip_tell',{max:N});
+$('#s-transfer').append(el('div',{class:'script'},el('span',{class:'s-h',text:'言い方の例（回答をもとに整えたもの）'}),C.scripts.transfer), el('p',{class:'small muted',style:'margin-top:6px',text:C.scripts.transfer_note}));
+
+// ===== timeline
+(function(){
+  const host=$('#c-timeline'); const W=Math.max(320,host.clientWidth||700), H=170, pad=30;
+  const ce=A.call_early.values, rw=A.recall_wait.values, vw=A.visit_wait.values;
+  const mce=median(ce), mrw=median(rw), mvw=median(vw);
+  const lo=-Math.max(...ce)-2, hi=mrw+Math.max(...vw)+3;
+  const x=v=>pad+(v-lo)/(hi-lo)*(W-pad*2);
+  const ns='http://www.w3.org/2000/svg'; const svg=document.createElementNS(ns,'svg'); svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  const mk=(t,a,txt)=>{const e=document.createElementNS(ns,t);for(const k in a)e.setAttribute(k,a[k]); if(txt!=null)e.textContent=txt; svg.append(e);return e;};
+  const y=92;
+  mk('rect',{x:x(lo),y:y-5,width:x(0)-x(lo),height:10,rx:5,fill:'var(--s1-soft)'});
+  mk('rect',{x:x(0),y:y-5,width:x(hi)-x(0),height:10,rx:5,fill:'var(--accent-soft)'});
+  mk('text',{x:x(lo)+4,y:y+30,'font-size':11,fill:'var(--ink-3)'},'利用中');
+  mk('text',{x:x(hi)-4,y:y+30,'font-size':11,fill:'var(--ink-3)','text-anchor':'end'},'時間超過');
+  // ranges
+  const range=(a,b,col)=>mk('rect',{x:x(a),y:y-3,width:Math.max(3,x(b)-x(a)),height:6,rx:3,fill:col,opacity:.55});
+  range(-Math.max(...ce),-Math.min(...ce),'var(--s1)');
+  range(Math.min(...rw),Math.max(...rw),'var(--accent)');
+  range(mrw+Math.min(...vw),mrw+Math.max(...vw),'var(--accent)');
+  const pts=[
+    [-mce,`早めのコール`,`終了${mce}分前`,'var(--s1)',`早めの退室コール：中央値 終了${mce}分前（${Math.min(...ce)}〜${Math.max(...ce)}分前）`],
+    [-10,'ピンク表示','終了10分前','var(--ink-3)','システム上の10分前（ピンク）'],
+    [0,'終了時刻','0分','var(--ink)','利用終了'],
+    [mrw,'再コール',`超過${mrw}分後`,'var(--accent)',`再コール：中央値 超過から${mrw}分後（${Math.min(...rw)}〜${Math.max(...rw)}分）`],
+    [mrw+mvw,'部屋へ行く',`再コール+${mvw}分`,'var(--accent)',`部屋へ行く：中央値 再コールから${mvw}分後（${Math.min(...vw)}〜${Math.max(...vw)}分）`],
+  ];
+  pts.forEach(([v,a,b,col,t],i)=>{ const up=i%2===0; const cx=x(v);
+    mk('line',{x1:cx,x2:cx,y1:up?y-30:y+8,y2:up?y-8:y+40,stroke:col,'stroke-width':1.5});
+    mk('circle',{cx,cy:y,r:7,fill:col,stroke:'var(--surface)','stroke-width':2});
+    const anchor=cx<W*0.12?'start':(cx>W*0.88?'end':'middle');
+    mk('text',{x:cx,y:up?y-50:y+56,'text-anchor':anchor,'font-size':12.5,'font-weight':700,fill:'var(--ink)'},a);
+    mk('text',{x:cx,y:up?y-35:y+71,'text-anchor':anchor,'font-size':11.5,fill:'var(--ink-2)'},b);
+    const hit=mk('circle',{cx,cy:y,r:16,fill:'transparent'}); bindTip(hit,t);
+  });
+  host.append(svg);
+  host.append(el('p',{class:'small muted',text:`薄い帯は回答の幅。再コールまで待つ時間は${Math.min(...rw)}〜${Math.max(...rw)}分、再コール後に部屋へ行くまでは${Math.min(...vw)}〜${Math.max(...vw)}分でした。`}));
+})();
+bars('c-call_early_when','call_early_when',{max:N}); singleStack('c-ask_nocall','ask_nocall'); singleStack('c-nocall_often','nocall_often');
+
+// ===== cleaning
+dots('c-clean_standby','clean_standby','分',{min:0,max:8,ticks:[0,2,4,6,8]});
+dots('c-clean_waiting','clean_waiting','分',{min:0,max:8,ticks:[0,2,4,6,8]});
+
+// ===== age / drink
+bars('c-id_when','id_when',{max:N}); bars('c-minor_check','minor_check',{max:N}); singleStack('c-car_ask','car_ask'); singleStack('c-oned_ask','oned_ask');
+
+// ===== mistakes
+bars('c-mistakes','mistakes',{max:N}); bars('c-stumble','stumble',{max:N});
+notes('l-mistake_tips',C.mistake_tips); notes('l-manual_requests',C.manual_requests); notes('l-requests',C.requests); notes('l-other_notes',C.other_notes,'label');
+
+// ===== spread
+(function(){ const h=$('#c-spread');
+  const rng=v=>[Math.min(...v),Math.max(...v)];
+  const rows=[
+    ['「空室が多い」と判断する空室の割合',A.ask_model_pct.values,'%',v=>v+'%'],
+    ['「延長不可」にする空室の割合',A.noext_pct.values,'%',v=>v+'%'],
+    ['もう一方の店舗を紹介する待ち時間',A.transfer_wait.values,'分',fmtMin],
+    ['待ち時間を多めに伝える幅',A.wait_pad.values,'分',fmtMin],
+    ['スタンバイ清掃の時間',A.clean_standby.values,'分',v=>v+'分'],
+  ];
+  rows.forEach(([l,v,u,f])=>{ if(!v.length) return; const [a,b]=rng(v); const r=el('div',{class:'spread-row'}); r.append(el('div',{class:'sl',text:l})); const sr=el('div',{class:'sr'}); sr.append(el('span',{class:'big',text:`${f(a)} 〜 ${f(b)}`}), `　（${v.length}人、中央値 ${f(median(v))}）`); r.append(sr); h.append(r); });
+  const ff=A.rule_free.items; const always=ff.find(i=>i[0]==='いつも')[1];
+  const r=el('div',{class:'spread-row'}); r.append(el('div',{class:'sl',text:'「夜フリータイムは遠くに入れない」の意識'})); const sr=el('div',{class:'sr'}); sr.append(el('span',{class:'big',text:`いつも ${always}/${A.rule_free.answered}人`}),'　（残りは「ときどき」「あまり」）'); r.append(sr); h.append(r);
+})();
+</script>
+</body>
+</html>
